@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "Room narration and event descriptions"
+  },
+
+  "environments": {
+    "lobby-main": {
+      "first-entry": "The lobby is quiet at this hour. Marble floors reflect the dim emergency lighting. A curved reception desk dominates the center, and security cameras blink red in the corners. The elevator bank is to your left.",
+      "return": "Back in the lobby. The exit is right there—just a few more steps.",
+      "guard-present": "A security guard paces near the elevators, flashlight sweeping the shadows.",
+      "guard-absent": "The lobby is empty. The guard must be making rounds elsewhere.",
+      "alarm-active": "Red lights flash across the lobby. The alarm blares. This just got a lot harder."
+    },
+    
+    "hallway-east": {
+      "first-entry": "A long corridor stretches ahead, fluorescent lights humming overhead. Office doors line both sides, all locked for the night. No cover here—you'll be exposed if someone comes.",
+      "return": "The east hallway. Still quiet, still exposed.",
+      "guard-patrolling": "Footsteps echo from somewhere ahead. Someone's walking this way.",
+      "clear": "The hallway is clear. For now."
+    },
+    
+    "server-room-3": {
+      "first-entry": "Rows of humming server racks fill the room, bathed in cold blue light. The air conditioning is aggressive—they keep these machines cold. Against the far wall, you spot the admin terminal. That's your target.",
+      "return": "The server room. The terminal still glows in the corner.",
+      "objective-complete": "The USB drive clicks into place. Data's downloading. Now you just need to get out.",
+      "tech-working": "A technician hunches over one of the racks, muttering about disk failures. They haven't noticed you yet."
+    },
+    
+    "stairwell-b": {
+      "first-entry": "A concrete stairwell, lit by bare fluorescent tubes. Footsteps echo loudly here. It connects the floors, but anyone nearby will hear you coming.",
+      "return": "The stairwell. Watch your step—it's loud in here."
+    }
+  },
+
+  "events": {
+    "alarm-triggered": "A shrill alarm cuts through the silence. Red lights begin to strobe. You've been made.",
+    "guard-alerted": "The guard's radio crackles. They tense, hand moving to their belt.",
+    "door-locked": "The door won't budge. You'll need a keycard, or another way in.",
+    "door-unlocked": "The lock clicks open. You're in.",
+    "terminal-hacked": "The terminal beeps. ACCESS GRANTED. The data's yours.",
+    "terminal-failed": "ACCESS DENIED. Wrong password. The system logs the attempt.",
+    "item-taken": "You pocket it quickly. One less thing in the way.",
+    "spotted": "Eyes lock onto you. Cover's blown.",
+    "hidden": "You press yourself into the shadows. For now, you're invisible.",
+    "combat-won": "They go down. But the clock is ticking—someone might have heard.",
+    "combat-fled": "You break away, heart pounding. That was close."
+  },
+
+  "actions": {
+    "look": {
+      "default": "You take a moment to study your surroundings.",
+      "dark": "It's hard to make out details in this light.",
+      "bright": "Everything is clearly visible. That also means you're clearly visible."
+    },
+    "listen": {
+      "quiet": "Silence. Almost unsettling.",
+      "footsteps-near": "Footsteps. Close. Someone's approaching.",
+      "footsteps-far": "Distant footsteps. Patrol, probably. You have time.",
+      "voices": "Voices in conversation. They haven't noticed you.",
+      "alarm": "The alarm drowns out everything else."
+    },
+    "search": {
+      "found-keycard": "Your fingers close around a keycard. Level 2. This could open doors.",
+      "found-intel": "Documents. Interesting. This could be useful.",
+      "nothing": "Nothing of use here."
+    },
+    "hide": {
+      "success": "You slip into the shadows, barely breathing.",
+      "failure": "There's nowhere to hide here.",
+      "partial": "You're partially concealed, but it won't hold up to close inspection."
+    }
+  },
+
+  "sloan-contextual": {
+    "mission-start": "You're in. Keep your head down and find that server room.",
+    "objective-near": "You're close. The objective should be nearby.",
+    "objective-complete": "Got it. Now get out the way you came in.",
+    "high-stress": "Hey. Breathe. We've got this.",
+    "spotted": "You've been seen! Move!",
+    "alarm": "Alarm's triggered. Time to improvise.",
+    "extraction": "Almost there. Don't get sloppy now."
+  }
+}

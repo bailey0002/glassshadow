@@ -1,0 +1,446 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "Environment definitions for infiltration missions"
+  },
+  
+  "environments": {
+    "lobby-main": {
+      "id": "lobby-main",
+      "name": "Main Lobby",
+      "description": "A sleek corporate lobby with marble floors and a curved reception desk.",
+      "type": "interior",
+      
+      "attributes": {
+        "lighting": "bright",
+        "noise": "quiet",
+        "cover": "sparse",
+        "security": "medium"
+      },
+      
+      "dimensions": {
+        "width": 12,
+        "height": 8
+      },
+      
+      "elements": [
+        {
+          "id": "reception-desk",
+          "name": "Reception Desk",
+          "type": "furniture",
+          "position": { "x": 6, "y": 2 },
+          "size": { "w": 4, "h": 1 },
+          "interactive": true,
+          "defaultAction": "examine",
+          "provideCover": true,
+          "contents": ["visitor-log", "desk-phone"]
+        },
+        {
+          "id": "security-camera-1",
+          "name": "Security Camera",
+          "type": "hazard",
+          "position": { "x": 1, "y": 1 },
+          "coneDirection": "southeast",
+          "coneAngle": 90,
+          "interactive": true,
+          "defaultAction": "examine",
+          "canDisable": true
+        },
+        {
+          "id": "elevator-panel",
+          "name": "Elevator Panel",
+          "type": "terminal",
+          "position": { "x": 10, "y": 4 },
+          "size": { "w": 1, "h": 1 },
+          "interactive": true,
+          "defaultAction": "use",
+          "requiresKeycard": true,
+          "keycardLevel": 1
+        },
+        {
+          "id": "waiting-chairs",
+          "name": "Waiting Area",
+          "type": "furniture",
+          "position": { "x": 2, "y": 5 },
+          "size": { "w": 3, "h": 2 },
+          "provideCover": true,
+          "interactive": false
+        },
+        {
+          "id": "plant-large",
+          "name": "Potted Plant",
+          "type": "decoration",
+          "position": { "x": 11, "y": 1 },
+          "size": { "w": 1, "h": 1 },
+          "provideCover": true,
+          "interactive": false
+        }
+      ],
+      
+      "exits": [
+        {
+          "id": "exit-front",
+          "destination": "exterior-front",
+          "label": "Front Entrance",
+          "position": { "x": 6, "y": 8 },
+          "type": "door",
+          "locked": false
+        },
+        {
+          "id": "exit-hallway",
+          "destination": "hallway-east",
+          "label": "East Hallway",
+          "position": { "x": 12, "y": 4 },
+          "type": "door",
+          "locked": false,
+          "requiresKeycard": false
+        },
+        {
+          "id": "exit-elevator",
+          "destination": "elevator",
+          "label": "Elevator",
+          "position": { "x": 10, "y": 4 },
+          "type": "elevator",
+          "locked": true,
+          "requiresKeycard": true,
+          "keycardLevel": 1
+        }
+      ],
+      
+      "npcSlots": [
+        {
+          "id": "receptionist-slot",
+          "position": { "x": 6, "y": 1 },
+          "defaultBehavior": "stationary",
+          "facingDirection": "south"
+        },
+        {
+          "id": "guard-patrol-slot",
+          "position": { "x": 8, "y": 6 },
+          "defaultBehavior": "patrol",
+          "patrolPath": [
+            { "x": 8, "y": 6 },
+            { "x": 2, "y": 6 },
+            { "x": 2, "y": 3 },
+            { "x": 8, "y": 3 }
+          ]
+        }
+      ],
+      
+      "blueprint": {
+        "ascii": [
+          "############",
+          "#C.........P",
+          "#..........#",
+          "#...DDDD...#",
+          "#.........E#",
+          "#.CCC......#",
+          "#.CCC......#",
+          "####__######"
+        ],
+        "legend": {
+          "#": "wall",
+          ".": "floor",
+          "D": "desk",
+          "C": "cover",
+          "E": "elevator",
+          "P": "plant",
+          "_": "door"
+        }
+      }
+    },
+    
+    "server-room-3": {
+      "id": "server-room-3",
+      "name": "Server Room 3",
+      "description": "Rows of humming server racks, bathed in cold blue light. The air conditioning is aggressive.",
+      "type": "interior",
+      
+      "attributes": {
+        "lighting": "dim",
+        "noise": "loud",
+        "cover": "heavy",
+        "security": "high"
+      },
+      
+      "dimensions": {
+        "width": 10,
+        "height": 6
+      },
+      
+      "elements": [
+        {
+          "id": "server-rack-1",
+          "name": "Server Rack A",
+          "type": "furniture",
+          "position": { "x": 2, "y": 1 },
+          "size": { "w": 1, "h": 4 },
+          "provideCover": true,
+          "interactive": false
+        },
+        {
+          "id": "server-rack-2",
+          "name": "Server Rack B",
+          "type": "furniture",
+          "position": { "x": 4, "y": 1 },
+          "size": { "w": 1, "h": 4 },
+          "provideCover": true,
+          "interactive": false
+        },
+        {
+          "id": "server-rack-3",
+          "name": "Server Rack C",
+          "type": "furniture",
+          "position": { "x": 6, "y": 1 },
+          "size": { "w": 1, "h": 4 },
+          "provideCover": true,
+          "interactive": false
+        },
+        {
+          "id": "admin-terminal",
+          "name": "Admin Terminal",
+          "type": "computer",
+          "position": { "x": 8, "y": 2 },
+          "size": { "w": 1, "h": 1 },
+          "interactive": true,
+          "defaultAction": "hack",
+          "hackDifficulty": "medium",
+          "contents": ["access-logs", "employee-records"],
+          "isObjective": true
+        },
+        {
+          "id": "security-camera-server",
+          "name": "Security Camera",
+          "type": "hazard",
+          "position": { "x": 9, "y": 0 },
+          "coneDirection": "southwest",
+          "coneAngle": 120,
+          "interactive": true,
+          "defaultAction": "examine",
+          "canDisable": true
+        }
+      ],
+      
+      "exits": [
+        {
+          "id": "exit-hallway-server",
+          "destination": "hallway-east",
+          "label": "Hallway",
+          "position": { "x": 0, "y": 3 },
+          "type": "door",
+          "locked": true,
+          "requiresKeycard": true,
+          "keycardLevel": 2
+        }
+      ],
+      
+      "npcSlots": [
+        {
+          "id": "tech-slot",
+          "position": { "x": 5, "y": 3 },
+          "defaultBehavior": "worker",
+          "workStations": ["server-rack-1", "server-rack-2", "server-rack-3"]
+        }
+      ],
+      
+      "blueprint": {
+        "ascii": [
+          "##########C",
+          "#.R.R.R..T#",
+          "#.R.R.R...#",
+          "_.R.R.R...#",
+          "#.R.R.R...#",
+          "###########"
+        ],
+        "legend": {
+          "#": "wall",
+          ".": "floor",
+          "R": "server-rack",
+          "T": "terminal",
+          "C": "camera",
+          "_": "door"
+        }
+      }
+    },
+    
+    "hallway-east": {
+      "id": "hallway-east",
+      "name": "East Hallway",
+      "description": "A long corridor with fluorescent lighting. Office doors line both sides.",
+      "type": "corridor",
+      
+      "attributes": {
+        "lighting": "normal",
+        "noise": "quiet",
+        "cover": "none",
+        "security": "low"
+      },
+      
+      "dimensions": {
+        "width": 3,
+        "height": 12
+      },
+      
+      "elements": [
+        {
+          "id": "fire-extinguisher",
+          "name": "Fire Extinguisher",
+          "type": "item",
+          "position": { "x": 0, "y": 6 },
+          "interactive": true,
+          "defaultAction": "take",
+          "canPickUp": true,
+          "useAs": "weapon"
+        }
+      ],
+      
+      "exits": [
+        {
+          "id": "exit-lobby",
+          "destination": "lobby-main",
+          "label": "Main Lobby",
+          "position": { "x": 0, "y": 0 },
+          "type": "door",
+          "locked": false
+        },
+        {
+          "id": "exit-server",
+          "destination": "server-room-3",
+          "label": "Server Room",
+          "position": { "x": 2, "y": 6 },
+          "type": "door",
+          "locked": true,
+          "requiresKeycard": true,
+          "keycardLevel": 2
+        },
+        {
+          "id": "exit-stairwell",
+          "destination": "stairwell-b",
+          "label": "Stairwell B",
+          "position": { "x": 0, "y": 11 },
+          "type": "door",
+          "locked": false
+        }
+      ],
+      
+      "npcSlots": [
+        {
+          "id": "patrol-hallway",
+          "position": { "x": 1, "y": 0 },
+          "defaultBehavior": "patrol",
+          "patrolPath": [
+            { "x": 1, "y": 0 },
+            { "x": 1, "y": 11 }
+          ]
+        }
+      ],
+      
+      "blueprint": {
+        "ascii": [
+          "_#_",
+          "#.#",
+          "#.#",
+          "#.#",
+          "#.#",
+          "#.#",
+          "#F_",
+          "#.#",
+          "#.#",
+          "#.#",
+          "#.#",
+          "_##"
+        ],
+        "legend": {
+          "#": "wall",
+          ".": "floor",
+          "F": "fire-extinguisher",
+          "_": "door"
+        }
+      }
+    },
+    
+    "stairwell-b": {
+      "id": "stairwell-b",
+      "name": "Stairwell B",
+      "description": "A concrete stairwell with flickering emergency lighting. Echoes carry here.",
+      "type": "stairwell",
+      
+      "attributes": {
+        "lighting": "dim",
+        "noise": "quiet",
+        "cover": "moderate",
+        "security": "none"
+      },
+      
+      "dimensions": {
+        "width": 4,
+        "height": 6
+      },
+      
+      "elements": [
+        {
+          "id": "utility-box",
+          "name": "Utility Box",
+          "type": "container",
+          "position": { "x": 0, "y": 1 },
+          "size": { "w": 1, "h": 1 },
+          "interactive": true,
+          "defaultAction": "examine",
+          "contents": ["keycard-level2"],
+          "locked": false,
+          "description": "A metal utility box. Someone left it unlocked."
+        },
+        {
+          "id": "security-camera-stairwell",
+          "name": "Security Camera (Disabled)",
+          "type": "hazard",
+          "position": { "x": 3, "y": 0 },
+          "interactive": false,
+          "disabled": true,
+          "description": "This camera appears to be offline."
+        }
+      ],
+      
+      "exits": [
+        {
+          "id": "exit-hallway",
+          "destination": "hallway-east",
+          "label": "East Hallway",
+          "position": { "x": 2, "y": 0 },
+          "type": "door",
+          "locked": false
+        },
+        {
+          "id": "exit-roof",
+          "destination": "roof-access",
+          "label": "Roof Access (Locked)",
+          "position": { "x": 2, "y": 5 },
+          "type": "door",
+          "locked": true,
+          "requiresKeycard": true,
+          "keycardLevel": 3,
+          "note": "Emergency exit only"
+        }
+      ],
+      
+      "npcSlots": [],
+      
+      "blueprint": {
+        "ascii": [
+          "##_#",
+          "U..#",
+          "#..#",
+          "#..#",
+          "#..#",
+          "##_#"
+        ],
+        "legend": {
+          "#": "wall",
+          ".": "floor",
+          "U": "utility-box",
+          "_": "door"
+        }
+      }
+    }
+  }
+}

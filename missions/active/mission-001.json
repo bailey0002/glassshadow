@@ -1,0 +1,216 @@
+{
+  "id": "mission-001",
+  "title": "The Quiet Floor",
+  "description": "Extract access logs from the corporate server room.",
+  
+  "briefing": {
+    "intro": "Meridian Technologies has been covering up safety violations at their manufacturing plants. The evidence is in their internal access logs - who went where, when, and what they were hiding.",
+    "objective": "Infiltrate the Meridian corporate building, reach Server Room 3 on the second floor, and extract the access logs from their admin terminal.",
+    "intel": "Building security is light at night - one guard on patrol, one receptionist at the desk until midnight. Server room requires Level 2 access, which you don't have. You'll need to acquire a keycard or find another way in.",
+    "extraction": "Exit through the main lobby once you have the data. Avoid detection - if they know someone was there, they'll scrub the logs before we can analyze them."
+  },
+  
+  "environments": [
+    "lobby-main",
+    "hallway-east", 
+    "server-room-3",
+    "stairwell-b"
+  ],
+  
+  "startingEnvironment": "lobby-main",
+  "startingPosition": { "x": 6, "y": 7 },
+  
+  "npcs": [
+    {
+      "id": "guard-01",
+      "type": "guard",
+      "location": "lobby-main",
+      "slot": "guard-patrol-slot",
+      "state": "patrol",
+      "name": "Night Guard"
+    },
+    {
+      "id": "tech-01", 
+      "type": "tech",
+      "location": "server-room-3",
+      "slot": "tech-slot",
+      "state": "worker",
+      "name": "Late-Night Tech"
+    }
+  ],
+  
+  "starting_equipment": [
+    "knife",
+    "flashlight",
+    "map-partial",
+    "vest-tactical",
+    "earpiece",
+    "usb-drive"
+  ],
+  
+  "objectives": [
+    {
+      "id": "obj-reach-server",
+      "type": "reach",
+      "location": "server-room-3",
+      "description": "Reach the server room",
+      "optional": false
+    },
+    {
+      "id": "obj-extract-logs",
+      "type": "retrieve",
+      "target": "access-logs",
+      "location": "server-room-3",
+      "description": "Extract access logs from admin terminal",
+      "optional": false
+    },
+    {
+      "id": "obj-extract-exit",
+      "type": "reach",
+      "location": "lobby-main",
+      "description": "Exit through the main lobby",
+      "optional": false,
+      "requires": ["obj-extract-logs"]
+    },
+    {
+      "id": "obj-bonus-records",
+      "type": "retrieve",
+      "target": "employee-records",
+      "description": "Extract employee records (bonus)",
+      "optional": true
+    },
+    {
+      "id": "obj-ghost",
+      "type": "avoid_detection",
+      "description": "Complete without being detected",
+      "optional": true
+    }
+  ],
+  
+  "sloan_mode": "balanced",
+  "sloan_enabled": true,
+  
+  "win_conditions": [
+    {
+      "type": "all_objectives",
+      "filter": "required"
+    },
+    {
+      "type": "reached_exit",
+      "location": "lobby-main"
+    }
+  ],
+  
+  "lose_conditions": [
+    {
+      "type": "player_caught",
+      "reason": "You were caught by security."
+    },
+    {
+      "type": "player_dead",
+      "reason": "Mission failed."
+    },
+    {
+      "type": "alarm_triggered",
+      "reason": "The alarm was triggered. Evidence will be destroyed."
+    }
+  ],
+  
+  "events": [
+    {
+      "id": "event-enter-lobby",
+      "trigger": {
+        "type": "reached_exit",
+        "location": "lobby-main"
+      },
+      "once": true,
+      "actions": [
+        {
+          "type": "sloan_speak",
+          "message": "You're in. Keep your head down and find that server room."
+        }
+      ]
+    },
+    {
+      "id": "event-spot-terminal",
+      "trigger": {
+        "type": "reached_exit",
+        "location": "server-room-3"
+      },
+      "once": true,
+      "actions": [
+        {
+          "type": "sloan_speak",
+          "message": "There's the terminal. Get in, grab the logs, get out."
+        }
+      ]
+    },
+    {
+      "id": "event-got-logs",
+      "trigger": {
+        "type": "has_item",
+        "item": "access-logs"
+      },
+      "once": true,
+      "actions": [
+        {
+          "type": "sloan_speak",
+          "message": "Got it. Now get out the way you came in."
+        },
+        {
+          "type": "set_flag",
+          "flag": "logs_acquired",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "event-guard-suspicious",
+      "trigger": {
+        "type": "npc_state",
+        "npc": "guard-01",
+        "state": "suspicious"
+      },
+      "once": true,
+      "actions": [
+        {
+          "type": "sloan_speak",
+          "message": "Guard's getting twitchy. Stay out of sight."
+        }
+      ]
+    }
+  ],
+  
+  "map": {
+    "overviewScale": 0.15,
+    "showObjectives": true,
+    "fogOfWar": true,
+    "revealOnVisit": true,
+    "markers": [
+      {
+        "type": "objective",
+        "location": "server-room-3",
+        "label": "Target"
+      },
+      {
+        "type": "exit",
+        "location": "lobby-main",
+        "label": "Exit"
+      }
+    ]
+  },
+  
+  "difficulty": {
+    "guardPatrolSpeed": 1.0,
+    "detectionMultiplier": 1.0,
+    "hackDifficultyBonus": 0,
+    "stressDecayRate": 1.0
+  },
+  
+  "metadata": {
+    "author": "System",
+    "version": "1.0",
+    "estimatedTime": "15-25 minutes",
+    "tags": ["stealth", "hacking", "corporate", "night"]
+  }
+}

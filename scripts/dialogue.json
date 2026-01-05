@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "NPC dialogue trees for infiltration missions"
+  },
+
+  "guard-01-neutral": {
+    "greeting": {
+      "text": "Hey, you're not supposed to be here after hours.",
+      "responses": [
+        { "text": "I'm with IT. Server emergency.", "next": "it-excuse", "check": "persuasion:40" },
+        { "text": "Sorry, wrong floor. I'll leave.", "next": "leave-peacefully", "effect": "increase-suspicion:15" },
+        { "text": "None of your business.", "next": "hostile-response", "effect": "increase-suspicion:40" },
+        { "text": "[Attack]", "next": "combat", "action": "initiate-combat" }
+      ]
+    },
+    "it-excuse": {
+      "text": "IT, huh? Alright, but make it quick. And don't go anywhere you're not supposed to.",
+      "responses": [
+        { "text": "Thanks. I'll be in and out.", "next": "end", "effect": "decrease-suspicion:10" },
+        { "text": "Where's the server room from here?", "next": "directions" }
+      ]
+    },
+    "directions": {
+      "text": "Down the east hallway, third door on the right. You'll need a Level 2 keycard though.",
+      "responses": [
+        { "text": "Got it. Thanks.", "next": "end" }
+      ]
+    },
+    "leave-peacefully": {
+      "text": "Yeah, you better get moving. This area is restricted after 9.",
+      "responses": [
+        { "text": "[Leave]", "next": "end" }
+      ]
+    },
+    "hostile-response": {
+      "text": "Excuse me? I'm going to need to see some ID, right now.",
+      "responses": [
+        { "text": "Okay, okay. Here, look.", "next": "fake-id", "check": "deception:60" },
+        { "text": "I don't have time for this.", "next": "flee", "action": "flee" },
+        { "text": "[Attack]", "next": "combat", "action": "initiate-combat" }
+      ]
+    },
+    "fake-id": {
+      "text": "...Alright. This checks out. But I'm keeping an eye on you.",
+      "responses": [
+        { "text": "Understood.", "next": "end", "effect": "increase-suspicion:20" }
+      ]
+    }
+  },
+
+  "guard-01-suspicious": {
+    "greeting": {
+      "text": "Hold it. I've seen you around. Something's not right here.",
+      "responses": [
+        { "text": "You're being paranoid. I work here.", "next": "deflect", "check": "persuasion:60" },
+        { "text": "Look, I don't want any trouble.", "next": "bribe", "check": "bribery:50" },
+        { "text": "[Distract and run]", "next": "flee", "action": "distract-flee" },
+        { "text": "[Attack]", "next": "combat", "action": "initiate-combat" }
+      ]
+    },
+    "deflect": {
+      "text": "Maybe. But I'm watching you. One wrong move...",
+      "responses": [
+        { "text": "Noted.", "next": "end" }
+      ]
+    },
+    "bribe": {
+      "text": "...What did you have in mind?",
+      "responses": [
+        { "text": "Fifty bucks to look the other way for ten minutes.", "next": "bribe-accept", "effect": "decrease-suspicion:30" },
+        { "text": "Never mind. Forget I said anything.", "next": "bribe-refuse", "effect": "increase-suspicion:20" }
+      ]
+    },
+    "bribe-accept": {
+      "text": "Ten minutes. Then I never saw you. Got it?",
+      "responses": [
+        { "text": "Deal.", "next": "end" }
+      ]
+    },
+    "bribe-refuse": {
+      "text": "Yeah, that's what I thought. Get out of here before I call this in.",
+      "responses": [
+        { "text": "[Leave]", "next": "end" }
+      ]
+    }
+  },
+
+  "tech-01-neutral": {
+    "greeting": {
+      "text": "Oh, hey. Working late too? These servers never quit.",
+      "responses": [
+        { "text": "Tell me about it. IT's never done.", "next": "commiserate" },
+        { "text": "Actually, I could use some help with the admin terminal.", "next": "ask-help", "check": "persuasion:30" },
+        { "text": "Just passing through.", "next": "end" }
+      ]
+    },
+    "commiserate": {
+      "text": "Right? Management has no idea what we deal with. Anyway, don't let me keep you.",
+      "responses": [
+        { "text": "You too. Good luck with the servers.", "next": "end", "effect": "decrease-suspicion:5" }
+      ]
+    },
+    "ask-help": {
+      "text": "The admin terminal? Sure, I can log you in. Just need to see your credentials first.",
+      "responses": [
+        { "text": "Here's my badge.", "next": "show-badge", "check": "deception:40" },
+        { "text": "Actually, I just remembered my password. Thanks anyway.", "next": "end" }
+      ]
+    },
+    "show-badge": {
+      "text": "Hmm, alright. The login is admin, password is 'meridian2024'. Don't tell anyone I told you that.",
+      "responses": [
+        { "text": "You're a lifesaver. Thanks.", "next": "end", "effect": "set-flag:know-password" }
+      ]
+    }
+  },
+
+  "receptionist-01-neutral": {
+    "greeting": {
+      "text": "Can I help you? The building closes to visitors at 6.",
+      "responses": [
+        { "text": "I'm picking up something from my office. Left my keys.", "next": "key-excuse", "check": "persuasion:25" },
+        { "text": "I'm with the cleaning crew. Starting early tonight.", "next": "cleaning-excuse", "check": "deception:35" },
+        { "text": "Just looking around.", "next": "suspicious", "effect": "increase-suspicion:30" }
+      ]
+    },
+    "key-excuse": {
+      "text": "Oh, that's annoying. Alright, sign in here. Which floor?",
+      "responses": [
+        { "text": "Third floor. Thanks.", "next": "signed-in", "effect": "set-flag:signed-in" }
+      ]
+    },
+    "cleaning-excuse": {
+      "text": "Cleaning? I didn't get any notice about that. Let me check...",
+      "responses": [
+        { "text": "It was last minute. New contract.", "next": "cleaning-success", "check": "deception:50" },
+        { "text": "You know what, I'll come back later.", "next": "end" }
+      ]
+    },
+    "cleaning-success": {
+      "text": "Alright, I guess. Just don't go anywhere you shouldn't.",
+      "responses": [
+        { "text": "Of course. Just doing my job.", "next": "end" }
+      ]
+    },
+    "suspicious": {
+      "text": "Looking around? This isn't a museum. I'm going to have to ask you to leave.",
+      "responses": [
+        { "text": "Fine, fine. I'm going.", "next": "end" },
+        { "text": "[Ignore and walk past]", "next": "force-entry", "effect": "increase-suspicion:50" }
+      ]
+    },
+    "signed-in": {
+      "text": "Third floor, got it. Elevators are to your left. Have a good night.",
+      "responses": [
+        { "text": "Thanks.", "next": "end" }
+      ]
+    }
+  }
+}

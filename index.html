@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glass Shadow - Infiltration</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕶️</text></svg>">
+</head>
+<body>
+  <div id="app"></div>
+  
+  <!-- Startup screen (shown before game loads) -->
+  <div id="startup-screen" class="startup-screen">
+    <div class="startup-content">
+      <div class="startup-logo">
+        <span class="logo-icon">🕶️</span>
+        <h1 class="logo-title">GLASS SHADOW</h1>
+        <p class="logo-subtitle">Infiltration Protocol</p>
+      </div>
+      <div class="startup-loading">
+        <div class="loading-bar">
+          <div class="loading-fill"></div>
+        </div>
+        <p class="loading-status">Initializing systems...</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+  
+  <script>
+    // Hide startup screen when game is ready
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const startup = document.getElementById('startup-screen');
+        if (startup) {
+          startup.classList.add('fade-out');
+          setTimeout(() => startup.remove(), 500);
+        }
+      }, 1500);
+    });
+  </script>
+</body>
+</html>

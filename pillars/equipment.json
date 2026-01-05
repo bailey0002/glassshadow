@@ -1,0 +1,292 @@
+{
+  "meta": {
+    "version": "1.0",
+    "description": "Equipment definitions - starting gear and discoverable items"
+  },
+  
+  "equipment": {
+    "knife": {
+      "id": "knife",
+      "name": "Swiss Army Knife",
+      "description": "A reliable multi-tool. Blade, screwdriver, can opener, and more.",
+      "category": "tool",
+      "starting": true,
+      "discoverable": false,
+      "weight": 0.1,
+      "actions": ["cut", "pry", "unscrew"],
+      "combatBonus": 5,
+      "icon": "🔪"
+    },
+    
+    "flashlight": {
+      "id": "flashlight",
+      "name": "Tactical Flashlight",
+      "description": "Compact LED flashlight. Bright beam, strobe function.",
+      "category": "tool",
+      "starting": true,
+      "discoverable": false,
+      "weight": 0.2,
+      "actions": ["illuminate", "blind"],
+      "batteryLife": 100,
+      "detectableWhenOn": true,
+      "icon": "🔦"
+    },
+    
+    "map-partial": {
+      "id": "map-partial",
+      "name": "Facility Map (Partial)",
+      "description": "Shows the first two floors. Upper levels are blank.",
+      "category": "intel",
+      "starting": true,
+      "discoverable": false,
+      "weight": 0,
+      "actions": ["study"],
+      "revealsAreas": ["lobby-main", "hallway-east", "server-room-3", "stairwell-b"],
+      "icon": "🗺️"
+    },
+    
+    "vest-tactical": {
+      "id": "vest-tactical",
+      "name": "Tactical Vest",
+      "description": "Lightweight vest with multiple pockets. No armor plating.",
+      "category": "clothing",
+      "starting": true,
+      "discoverable": false,
+      "weight": 0.5,
+      "carryCapacity": 6,
+      "equipped": true,
+      "icon": "🦺"
+    },
+    
+    "earpiece": {
+      "id": "earpiece",
+      "name": "Comm Earpiece",
+      "description": "Your link to Sloan. Encrypted channel.",
+      "category": "tech",
+      "starting": true,
+      "discoverable": false,
+      "weight": 0,
+      "actions": ["contact-sloan"],
+      "sloanRequired": true,
+      "icon": "🎧"
+    },
+    
+    "keycard-level1": {
+      "id": "keycard-level1",
+      "name": "Level 1 Keycard",
+      "description": "Basic employee access. Opens common areas and elevators.",
+      "category": "key",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["reception-desk", "guard-body"],
+      "weight": 0,
+      "actions": ["use"],
+      "accessLevel": 1,
+      "icon": "💳"
+    },
+    
+    "keycard-level2": {
+      "id": "keycard-level2",
+      "name": "Level 2 Keycard",
+      "description": "Technical staff access. Opens server rooms and labs.",
+      "category": "key",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["tech-body", "security-office-drawer"],
+      "weight": 0,
+      "actions": ["use"],
+      "accessLevel": 2,
+      "icon": "💳"
+    },
+    
+    "usb-drive": {
+      "id": "usb-drive",
+      "name": "USB Drive",
+      "description": "Empty 64GB drive. Good for extracting data.",
+      "category": "tech",
+      "starting": true,
+      "discoverable": true,
+      "weight": 0,
+      "actions": ["use", "plug-in"],
+      "dataCapacity": 5,
+      "currentData": [],
+      "icon": "💾"
+    },
+    
+    "fire-extinguisher": {
+      "id": "fire-extinguisher",
+      "name": "Fire Extinguisher",
+      "description": "Heavy. Could knock someone out or create a distraction.",
+      "category": "improvised",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["hallway-east"],
+      "weight": 2.0,
+      "actions": ["use", "throw"],
+      "combatBonus": 20,
+      "canSubdue": true,
+      "singleUse": false,
+      "icon": "🧯"
+    },
+    
+    "access-logs": {
+      "id": "access-logs",
+      "name": "Access Logs",
+      "description": "Digital records of who entered what room and when.",
+      "category": "intel",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["admin-terminal"],
+      "weight": 0,
+      "isObjective": true,
+      "dataSize": 1,
+      "icon": "📋"
+    },
+    
+    "employee-records": {
+      "id": "employee-records",
+      "name": "Employee Records",
+      "description": "Personnel files. Names, photos, access levels.",
+      "category": "intel",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["admin-terminal"],
+      "weight": 0,
+      "dataSize": 2,
+      "revealsNPCs": true,
+      "icon": "📁"
+    },
+    
+    "lockpick-set": {
+      "id": "lockpick-set",
+      "name": "Lockpick Set",
+      "description": "Professional-grade picks. For when keycards aren't an option.",
+      "category": "tool",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["security-office-locker"],
+      "weight": 0.1,
+      "actions": ["lockpick"],
+      "skillBonus": 30,
+      "icon": "🔓"
+    },
+    
+    "taser": {
+      "id": "taser",
+      "name": "Taser",
+      "description": "Non-lethal takedown. Two shots before recharge needed.",
+      "category": "weapon",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["guard-body", "security-office"],
+      "weight": 0.3,
+      "actions": ["use"],
+      "combatBonus": 40,
+      "canSubdue": true,
+      "charges": 2,
+      "maxCharges": 2,
+      "icon": "⚡"
+    },
+    
+    "radio-guard": {
+      "id": "radio-guard",
+      "name": "Guard Radio",
+      "description": "Lets you listen to security chatter. Maybe even respond.",
+      "category": "tech",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["guard-body"],
+      "weight": 0.2,
+      "actions": ["listen", "transmit"],
+      "revealsPatrols": true,
+      "canDeceive": true,
+      "icon": "📻"
+    },
+    
+    "medkit-small": {
+      "id": "medkit-small",
+      "name": "First Aid Kit",
+      "description": "Bandages, antiseptic, painkillers. Good for minor injuries.",
+      "category": "consumable",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["break-room", "security-office"],
+      "weight": 0.3,
+      "actions": ["use"],
+      "healAmount": 30,
+      "uses": 2,
+      "icon": "🩹"
+    },
+    
+    "coffee-thermos": {
+      "id": "coffee-thermos",
+      "name": "Coffee Thermos",
+      "description": "Strong black coffee. Might help Mack focus... temporarily.",
+      "category": "consumable",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["break-room", "security-office"],
+      "weight": 0.2,
+      "actions": ["use"],
+      "effect": {
+        "type": "mack-sobriety-boost",
+        "amount": 30
+      },
+      "uses": 1,
+      "icon": "☕"
+    },
+    
+    "energy-drink": {
+      "id": "energy-drink",
+      "name": "Energy Drink",
+      "description": "Questionable chemicals. Might wake someone up.",
+      "category": "consumable",
+      "starting": false,
+      "discoverable": true,
+      "locations": ["break-room", "vending-machine"],
+      "weight": 0.1,
+      "actions": ["use"],
+      "effect": {
+        "type": "mack-sobriety-boost",
+        "amount": 40
+      },
+      "uses": 1,
+      "icon": "🥤"
+    }
+  },
+  
+  "categories": {
+    "tool": {
+      "description": "Multi-use items for problem solving",
+      "stackable": false
+    },
+    "weapon": {
+      "description": "Items designed for combat",
+      "stackable": false
+    },
+    "improvised": {
+      "description": "Environmental items repurposed as tools/weapons",
+      "stackable": false
+    },
+    "tech": {
+      "description": "Electronic devices and gadgets",
+      "stackable": false
+    },
+    "key": {
+      "description": "Access cards and keys",
+      "stackable": true
+    },
+    "intel": {
+      "description": "Information and documents",
+      "stackable": true
+    },
+    "consumable": {
+      "description": "Single or limited use items",
+      "stackable": true
+    },
+    "clothing": {
+      "description": "Wearable items",
+      "stackable": false
+    }
+  }
+}
