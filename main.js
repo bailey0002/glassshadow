@@ -1,6 +1,8 @@
 /**
  * GLASS SHADOW - MAIN ENTRY POINT
  * Infiltration game bootstrap and render loop
+ * 
+ * PATCHED: Detection grace period, incremental detection, iOS fixes
  */
 
 import { GameEngine, EventBus } from './core/engine.js';
@@ -31,6 +33,14 @@ import { Mack } from './entities/mack.js';
 let environmentsData = null;
 let equipmentData = null;
 
+// ==============================================
+// DETECTION SYSTEM CONSTANTS
+// ==============================================
+const DETECTION_GRACE_PERIOD = 3000; // 3 seconds before NPCs can detect player on room entry
+const DETECTION_CHECK_INTERVAL = 1500; // Check detection every 1.5 seconds, not every frame
+const DETECTION_BASE_CHANCE = 8; // 8% base chance per check
+const DETECTION_INCREMENT = 5; // How much detection increases per successful spot
+
 /**
  * Glass Shadow Game Application
  */
@@ -56,6 +66,13 @@ class GlassShadow {
     // Animation frame
     this.animationId = null;
     this.lastFrameTime = 0;
+    
+    // ==============================================
+    // DETECTION SYSTEM STATE
+    // ==============================================
+    this.detectionEnabled = false;
+    this.roomEntryTime = 0;
+    this.lastDetectionCheck = 0;
     
     // Initialization state
     this.initialized = false;
@@ -194,6 +211,7 @@ class GlassShadow {
           <div class="error-content">
             <div class="error-icon">⚠️</div>
             <div class="error-text"></div>
+            <button class="retry-button" onclick="location.reload()">TRY AGAIN</button>
           </div>
         </div>
       </div>
@@ -314,6 +332,11 @@ class GlassShadow {
     this.eventBus.on('dialogue:ended', () => {
       this.modeManager.returnToPrevious();
     });
+    
+    // Dialogue failure - don't instant fail
+    this.eventBus.on('dialogue:failed', (data) => {
+      this.handleDialogueFailed(data.npc);
+    });
 
     // Priority updates
     this.eventBus.on('priorities:updated', (priorities) => {
@@ -335,6 +358,14 @@ class GlassShadow {
     document.addEventListener('keydown', (e) => {
       this.handleKeyboard(e);
     });
+    
+    // Touch input for mobile
+    document.addEventListener('touchstart', (e) => {
+      // Prevent default only on game UI, not inputs
+      if (e.target.closest('.action-button, .response-button')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 
   /**
@@ -420,6 +451,26 @@ class GlassShadow {
     this.state.currentEnvironment = roomId;
     this.mapRenderer.markVisited(roomId);
 
+    // ==============================================
+    // RESET DETECTION GRACE PERIOD ON ROOM ENTRY
+    // ==============================================
+    this.detectionEnabled = false;
+    this.roomEntryTime = Date.now();
+    
+    // Reset NPC spotted flags for this room
+    for (const npc of this.state.npcs.values()) {
+      if (npc.location === roomId) {
+        npc._alreadySpotted = false;
+        npc._engagementHandled = false;
+      }
+    }
+    
+    // Enable detection after grace period
+    setTimeout(() => {
+      this.detectionEnabled = true;
+      console.log(`Detection enabled for room: ${roomId}`);
+    }, DETECTION_GRACE_PERIOD);
+
     // Get NPCs in room
     const npcsInRoom = Array.from(this.state.npcs.values())
       .filter(npc => npc.location === roomId);
@@ -478,6 +529,9 @@ class GlassShadow {
       case 'listen':
         this.listenForSounds();
         break;
+      case 'wait':
+        this.waitAction();
+        break;
       case 'contact-mack':
         this.contactMack(data);
         break;
@@ -497,6 +551,39 @@ class GlassShadow {
       default:
         console.log(`Action not implemented: ${verb}`);
     }
+  }
+
+  /**
+   * Wait action - recover stress/stamina, pass time
+   */
+  waitAction() {
+    this.state.updateVitals({ stress: -10, stamina: 5 });
+    this.sloan.forceSpeech("Taking a moment. Stay alert.");
+    this.updateUI();
+  }
+
+  /**
+   * Handle dialogue failure - incremental consequences, not instant fail
+   */
+  handleDialogueFailed(npc) {
+    // Increase detection significantly but don't instant fail
+    const currentDetection = this.state.player.vitals.detection || 0;
+    this.state.updateVitals({ detection: 30, stress: 20 });
+    
+    // Check for mission fail
+    if (currentDetection + 30 >= 100) {
+      this.handleGameOver('You were caught by security.');
+    } else {
+      // NPC becomes hostile but player can still flee
+      if (npc) {
+        npc.awareness = 'hostile';
+        npc.engaged = true;
+      }
+      this.modeManager.transitionTo('combat', { pushToStack: true });
+      this.sloan.forceSpeech("That didn't work. You need to deal with this or run!");
+    }
+    
+    this.updateUI();
   }
 
   /**
@@ -561,7 +648,7 @@ class GlassShadow {
       return;
     }
 
-    this.state.updateVitals({ stamina: -25, stress: 20, detection: 30 });
+    this.state.updateVitals({ stamina: -25, stress: 20, detection: 15 }); // Reduced detection penalty
     
     // Disengage all NPCs
     for (const npc of this.state.npcs.values()) {
@@ -681,6 +768,17 @@ class GlassShadow {
       this.state.addEquipment(itemId);
       this.eventBus.emit('item:added', { itemId });
       this.sloan.forceSpeech('Got it.');
+      
+      // Check if this is an objective item
+      if (itemId === 'access-logs') {
+        this.state.setFlag('logs_acquired', true);
+        const obj = this.state.objectives?.find(o => o.id === 'obj-extract-logs');
+        if (obj) {
+          obj.completed = true;
+          this.eventBus.emit('objectives:updated', { objectives: this.state.objectives });
+        }
+        this.sloan.forceSpeech("That's the package. Now get to the exit.");
+      }
     }
   }
 
@@ -973,40 +1071,27 @@ class GlassShadow {
    * Update game state
    */
   update(deltaTime) {
-    // Update NPCs and check detection
-    const currentEnv = this.environments.get(this.state.currentEnvironment);
-    const envNoise = currentEnv?.attributes?.noise || 'normal';
+    // ==============================================
+    // DETECTION SYSTEM - THROTTLED & GATED
+    // ==============================================
+    const now = Date.now();
     
+    // Only check detection if:
+    // 1. Detection is enabled (grace period passed)
+    // 2. Enough time since last check
+    // 3. Not already in combat/dialogue mode
+    const currentMode = this.modeManager?.getCurrentMode?.() || 'exploration';
+    const canCheckDetection = this.detectionEnabled && 
+                              (now - this.lastDetectionCheck) > DETECTION_CHECK_INTERVAL &&
+                              !['combat', 'dialogue'].includes(currentMode);
+    
+    if (canCheckDetection) {
+      this.lastDetectionCheck = now;
+      this.checkNPCDetection();
+    }
+
+    // Update NPCs (patrol, etc) - but NOT detection
     for (const npc of this.state.npcs.values()) {
-      // Only check NPCs in current room
-      if (npc.location === this.state.currentEnvironment) {
-        // Check if NPC detects player
-        const detected = npc.detectPlayer(
-          this.state.player.position,
-          this.state.player.conditions?.includes('hidden') || false,
-          envNoise
-        );
-        
-        if (detected) {
-          // Update player detection level
-          const detectionIncrease = npc.awareness === 'hostile' ? 15 : 
-                                    npc.awareness === 'alert' ? 10 : 5;
-          this.state.updateVitals({ detection: detectionIncrease });
-          
-          // Emit event for Sloan/UI
-          if (npc.awareness === 'suspicious' && !npc._alreadySpotted) {
-            this.eventBus.emit('npc:spotted', { npc: npc.getState(), type: npc.type });
-            npc._alreadySpotted = true;
-          }
-          
-          // Check for engagement trigger
-          if (npc.engaged && !npc._engagementHandled) {
-            this.handleNPCEngagement(npc);
-            npc._engagementHandled = true;
-          }
-        }
-      }
-      
       npc.tick(this.state);
     }
 
@@ -1032,6 +1117,85 @@ class GlassShadow {
   }
 
   /**
+   * Check NPC detection - THROTTLED VERSION
+   */
+  checkNPCDetection() {
+    const currentEnv = this.environments.get(this.state.currentEnvironment);
+    if (!currentEnv) return;
+    
+    const envNoise = currentEnv?.attributes?.noise || 'normal';
+    
+    for (const npc of this.state.npcs.values()) {
+      // Only check NPCs in current room
+      if (npc.location !== this.state.currentEnvironment) continue;
+      
+      // Skip unconscious/subdued NPCs
+      if (npc.state === 'unconscious' || npc.state === 'subdued') continue;
+      
+      // Skip if already engaged
+      if (npc.engaged) continue;
+      
+      // Calculate detection chance
+      let detectChance = DETECTION_BASE_CHANCE;
+      
+      // Modifiers
+      if (npc.awareness === 'alert') detectChance += 10;
+      if (npc.awareness === 'hostile') detectChance += 20;
+      if (currentEnv.attributes?.lighting === 'bright') detectChance += 5;
+      if (currentEnv.attributes?.lighting === 'dim') detectChance -= 5;
+      if (this.state.player.conditions?.includes('hidden')) detectChance -= 15;
+      if (this.state.player.vitals.stress > 50) detectChance += 5; // Nervous behavior visible
+      
+      // Noise modifier
+      if (envNoise === 'loud') detectChance -= 5;
+      if (envNoise === 'silent') detectChance += 10;
+      
+      // Roll
+      const roll = Math.random() * 100;
+      
+      if (roll < detectChance) {
+        // Detection successful - INCREMENT, don't instant fail
+        const currentDetection = this.state.player.vitals.detection || 0;
+        const newDetection = Math.min(100, currentDetection + DETECTION_INCREMENT);
+        this.state.player.vitals.detection = newDetection;
+        
+        console.log(`NPC ${npc.id} detected player. Detection: ${currentDetection} -> ${newDetection}`);
+        
+        // Emit event for UI update
+        this.eventBus.emit('detection:increased', { 
+          level: newDetection,
+          npc: npc.id 
+        });
+        
+        // Threshold responses
+        if (newDetection >= 100) {
+          // Mission fail at 100
+          this.handleGameOver('You were caught by security.');
+          return;
+        } else if (newDetection >= 80 && !npc._engagementHandled) {
+          // Engage at 80+
+          npc.engaged = true;
+          npc._engagementHandled = true;
+          this.handleNPCEngagement(npc);
+        } else if (newDetection >= 50 && npc.awareness !== 'suspicious') {
+          // Suspicious at 50+
+          npc.awareness = 'suspicious';
+          if (!npc._alreadySpotted) {
+            this.eventBus.emit('npc:spotted', { npc: npc.getState(), type: npc.type });
+            this.sloan.forceSpeech("They're getting suspicious. Be careful.");
+            npc._alreadySpotted = true;
+          }
+        } else if (newDetection >= 30 && !npc._alreadySpotted) {
+          // First alert at 30+
+          npc.awareness = 'alert';
+          this.sloan.forceSpeech("Watch it. Someone's looking around.");
+          npc._alreadySpotted = true;
+        }
+      }
+    }
+  }
+
+  /**
    * Handle NPC engaging the player
    */
   handleNPCEngagement(npc) {
@@ -1051,16 +1215,16 @@ class GlassShadow {
    * Check win/lose conditions
    */
   checkWinLoseConditions() {
+    // Prevent multiple triggers
+    if (this.state.hasFlag('game_over') || this.state.hasFlag('mission_complete')) return;
+    
     // Check lose conditions
     if (this.state.player.vitals.health <= 0) {
       this.handleGameOver('You were killed.');
       return;
     }
     
-    if (this.state.player.vitals.detection >= 100) {
-      this.handleGameOver('You were caught by security.');
-      return;
-    }
+    // Detection checked in checkNPCDetection now
     
     // Check for alarm (would be set by NPC actions)
     if (this.state.hasFlag('alarm_triggered')) {
@@ -1069,10 +1233,6 @@ class GlassShadow {
     }
     
     // Check win conditions
-    const requiredObjectives = this.state.objectives?.filter(o => !o.optional) || [];
-    const allRequiredComplete = requiredObjectives.every(o => o.completed);
-    
-    // Check if player has required items and is at exit
     const hasLogs = this.state.player.equipment.includes('access-logs');
     const atExit = this.state.currentEnvironment === 'lobby-main';
     

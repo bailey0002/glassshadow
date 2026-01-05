@@ -2,10 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- iOS VIEWPORT FIXES -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Glass Shadow">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0c0e">
+  
+  <!-- Prevent iOS text size adjustment -->
+  <meta name="format-detection" content="telephone=no">
+  
   <title>Glass Shadow - Infiltration</title>
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- PWA Icons -->
+  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕶️</text></svg>">
+  
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  
+  <style>
+    /* Critical CSS inlined for fast first paint */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0c0e;
+      color: #d0d5dc;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      /* iOS safe areas */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    
+    /* Prevent overscroll/bounce on iOS */
+    html, body {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    #app {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
@@ -27,19 +75,71 @@
     </div>
   </div>
 
+  <!-- Error overlay -->
+  <div id="error-overlay" class="error-overlay" style="display: none;">
+    <div class="error-content">
+      <span class="error-icon">⚠️</span>
+      <h2 class="error-title">System Error</h2>
+      <p class="error-message" id="error-message">An error occurred.</p>
+      <button class="retry-button" onclick="location.reload()">RETRY</button>
+    </div>
+  </div>
+
   <script type="module" src="main.js"></script>
   
   <script>
-    // Hide startup screen when game is ready
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const startup = document.getElementById('startup-screen');
-        if (startup) {
-          startup.classList.add('fade-out');
-          setTimeout(() => startup.remove(), 500);
+    // iOS-specific fixes
+    (function() {
+      // Prevent double-tap zoom
+      document.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        if (now - (this.lastTouchEnd || 0) < 300) {
+          e.preventDefault();
         }
-      }, 1500);
-    });
+        this.lastTouchEnd = now;
+      }, { passive: false });
+      
+      // Prevent pinch zoom
+      document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+      }, { passive: false });
+      
+      // Fix iOS 100vh issue
+      function setVH() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+      setVH();
+      window.addEventListener('resize', setVH);
+      window.addEventListener('orientationchange', function() {
+        setTimeout(setVH, 100);
+      });
+      
+      // Hide startup screen when game is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const startup = document.getElementById('startup-screen');
+          if (startup) {
+            startup.classList.add('fade-out');
+            setTimeout(function() {
+              startup.style.display = 'none';
+            }, 500);
+          }
+        }, 1500);
+      });
+      
+      // Global error handler
+      window.onerror = function(msg, url, line) {
+        console.error('Error:', msg, url, line);
+        const errorOverlay = document.getElementById('error-overlay');
+        const errorMessage = document.getElementById('error-message');
+        if (errorOverlay && errorMessage) {
+          errorMessage.textContent = msg;
+          errorOverlay.style.display = 'flex';
+        }
+        return false;
+      };
+    })();
   </script>
 </body>
 </html>
